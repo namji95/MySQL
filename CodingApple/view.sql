@@ -1,0 +1,29 @@
+-- 테이블 대신 뷰를 쓰는 이유
+-- 간혹 CREATE TABLE 말고 CREATE VIEW 하는 경우가 있음
+-- VIEW 는 가상테이블임, 실제 테이블처럼 사용할 수 있음
+-- CREATE VIEW 뷰이름 
+-- AS SELECT 컬럼1, 컬럼2, ~
+-- FROM 테이블명
+-- VIEW 만드는 문법은 이렇고
+-- SELECT 로 찾은 행들을 VIEW 로 만들어 달라는 코드
+-- 
+-- 두 테이블을 JOIN 해서 VIEW 로 만들어보기
+-- CREATE VIEW view1
+-- AS
+-- SELECT * FROM 테이블명 INNER JOIN 테이블2
+-- ON 컬럼명 = 컬럼명
+-- 이런식으로 작성
+-- VIEW 는 테이블이랑 똑같아서 SELECT INSERT UPDATE DELETE 전부 가능
+-- (일단 dbms 에서는 SELECT 만 가능)
+-- 
+-- VIEW 쓰는 이유
+-- 1. 복잡하게 JOIN 해놓은 테이블들을 하나의 테이블 또는 view로 만들어 두면
+-- 두고두고 재사용할 수 있어서 편리
+-- 2. VIEW 는 실제 테이블이 아니라서 테이블만큼 하드용량을 차지하지 않음
+-- 3. TABLE 에 컬럼변경이 필요할 때 VIEW 를 만들어서 먼저 실험해 볼 수 있음
+-- 4. VIEW 안에서 또 SELECT 해서 VIEW 를 만들 수 있음 (너무 많음 중첩은 금지)
+-- 
+-- 보통 JOIN 해서 작성해둔 SELECT 문을 쉽게 테이블 형태로 재사용하고 싶을 때 VIEW 를 많이 사용
+-- 
+-- 참고
+-- VIEW 는 가상테이블이라 실제로 테이블이 생성되는 것은 아님
