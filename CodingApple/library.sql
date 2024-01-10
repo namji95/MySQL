@@ -1,0 +1,63 @@
+-- index 개념
+-- 데이터베이스 내가 원하는 값을 찾을 때 행이 너무 많으면 많을수록 느려짐
+-- 이때 사용하는 것이 INDEX
+-- INDEX 의 원리는 데이터를 절반씩 소거하며 찾아감
+-- 대신 데이터베이스 값을 정렬 후 INDEX 사용 가능
+-- 그래서 원래 db 값을 복사해서 정렬한 것을 INDEX라 부름
+-- 데이터베이스는 Tree 형대로 정렬되어 있음 
+-- 데이터베이스는 보통 밑에와 같은 TREE 형태로 구분
+-- BINARY SEARCH TREE / B-TREE / B+TREE
+-- BINARY SEARCH TREE - 데이터를 반씩 소거하며 데이터 찾음
+-- B-TREE - 데이터를 2/3씩 소거하며 데이터를 찾음
+-- B+TREE - 데이터를 노드마다 보관하는 것이 아닌 아래 노드에 보관하고
+-- 위에 노드들은 데이터가 아닌 데이터 탐색 가이드만 둠
+-- 아래 노드끼리도 화살표로 연결해둠 그래서 범위 검색이 쉬워짐
+-- INDEX 없는 경우 : 모든 행을 다 찾음
+-- INDEX 있는 경우 : 데이터를 소거하는 방식으로 행을 찾음 INDEX와 연결된 원래 테이블 행을 가져옴
+-- INDEX의 단점
+-- 1. 컬럼을 복사해서 관리하기 때문에 하드용량이 증가함(검색 컬럼이 아니라면 INDEX 지정하지 않는게 좋음)
+-- 2. 기존 테이블에 삽입 수정 삭제 할 경우 변경된 사항을 INDEX에도 반영해줘야 함
+-- PRIMARY KEY는 INDEX 생성이 필요없음 이것을 clustered index라고 함
+-- 숫자뿐 아니라 다른 자료형도 INDEX 지정 가능
+-- WHERE 문법 안에 = != > < >= <= BETWEEN LIKE 등 사용해서 자료를 찾을 때 INDEX를 쓸 수 있으면 자동으로 사용해줌
+-- LIKE 사용시 LIKE%검색어 이런건 INDEX 사용 불가
+-- INDEX는 직접 만들어서 사용해야 함
+-- 
+-- -- 도서관 데이터 전체 조회
+-- SELECT * FROM library;
+-- 
+-- -- 도서관 데이터 전체 행 조회
+-- SELECT count(*) FROM library;
+-- 
+-- -- 등록번호 조회를 통해 index 없이 조회하는 방법과 index 지정 후 걸리는 시간 등 비교하는 방법
+-- SELECT * FROM library WHERE 등록번호 = 'CEM97499';
+-- -- 코드 선택 후(커서 올려두기)
+-- 1. 실행계획 보기
+-- 2. 내용 중 cost, access_type, filtered 정도 확인하기
+-- 2-1. cost : 쿼리문 실행에 걸리는 시간 낮으면 낮을수록 좋다.
+-- 2-2. access_type : 테이블 탐색방법 (index를 지정하지 않으면 All이라 뜨고 아니라면 index, range, ref, const등이 뜸)
+-- 2-3. filtered : 퍼센트 단위로 컴퓨터가 읽은 행들 중에 실제 결과로 출력되는 행의 비율
+-- (결과로 출력해주는 행 / 읽은행) * 100 백퍼센트에 가까울수록 좋다.
+-- 데이터베이스 리스트에서 내가 INDEX 지정하고 싶은 테이블 안에 있는 indexes라는 폴더 우클릭하여 INDEX 생성
+-- index 생성 후 등록번호 하나 지정 조회 후 실행계획 비교해보기
+SELECT * FROM library WHERE 등록번호 = 'CEM97499';
+-- MySQL Workbench에서 Execution Plan에서 더 자세하게 확인할 수 있음
+SELECT * FROM library WHERE 등록번호 > 'CEM97499';
+-- 부등호를 사용하면 전체 행 대비 출력할 행이 20% 넘으면 index를 쓰는 것 보다 Full Scan하는게 더 좋다고 판단하여 All이 뜰 수 있음
+ALTER TABLE library ADD COLUMN id int PRIMARY KEY AUTO_INCREMENT;
+-- primary key는 index 지정 필요 없음
+SELECT * FROM library WHERE id = 10;
+-- index 지정할 때 column을 2개 이상 지정하는 것도 가능 = 다중컬럼index
+-- where절에서 column1 ~ AND column2를 조회할 때 좋다.
+-- 대신 다중컬럼 index를 지정할 때는 column 순서가 중요
+-- 예를 들어 index를 column1을 1번 column2를 2번으로 지정했을 때 
+-- WHERE column1 = ? AND column2 = ? 이렇게 작성하거나
+-- WHERE column1 = ? 이렇게 작성하는 것은 가능하지만
+-- WHERE column2 = ? 이렇게 작성하는 것은 불가능
+-- 순서를 지정할 때는 cardinality가 높은 컬럼을 1순위로 둔다.
+-- cardinality는 구분명확도로 중복 데이터가 적은 컬럼을 말함 (예 : 주민번호)
+-- SQL 문법으로 index 생성하기 (단일컬럼index)
+CREATE INDEX 인덱스이름 ON 테이블명 (컬럼명);
+-- SQL 문법으로 index 생성하기 (다중컬럼index)
+CREATE INDEX 인덱스이름 ON 테이블명 (컬러명1, 컬럼명2);
+-- 이런식으로 작성
